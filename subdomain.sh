@@ -78,19 +78,19 @@ if [ ! -f /etc/nginx/conf.d/$subdomain.$domainname ]; then
     if [ "$nodeapp" = "n" ]; then
         echo "server {
               root /var/www/$subdomain.$domainname/app/$repo/$repo/public;
-              server_name /$subdomain.$domainname;
+              server_name $subdomain.$domainname;
               error_log /var/www/$subdomain.$domainname/error.log;
               access_log  /var/www/$subdomain.$domainname/access.log;
               index index.php;
             location / {
-              try_files $uri $uri/ /index.php?$query_string;
+              try_files \$uri \$uri/ /index.php?\$query_string;
             }
 
-            location ~ \.php$ {
-              try_files $uri =404;
+            location ~ \\.php$ {
+              try_files \$uri =404;
               fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
               fastcgi_index index.php;
-              fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+              fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
               include fastcgi_params;
             }
 
