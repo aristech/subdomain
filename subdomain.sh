@@ -10,10 +10,8 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-
-# replace "domain.com" with your own domain name
 # domain name
-domainname="domain.com"
+domainname="progressnet.dev"
 
 # Ask for the subdomain name
 echo "Enter the subdomain name:"
@@ -79,17 +77,23 @@ fi
 if [ ! -f /etc/nginx/conf.d/$subdomain.$domainname ]; then
     if [ "$nodeapp" = "n" ]; then
         echo "server {
-            listen 80;
-            listen [::]:80;
-
-            root /var/www/$subdomain.$domainname;
-            index index.html index.htm index.nginx-debian.html;
-
-            server_name $subdomain.$domainname;
-
+              root /var/www/$subdomain.$domainname/app/$repo/$repo/public;
+              server_name /$subdomain.$domainname;
+              error_log /var/www/$subdomain.$domainname/error.log;
+              access_log  /var/www/$subdomain.$domainname/access.log;
+              index index.php;
             location / {
-                try_files \$uri \$uri/ =404;
+              try_files $uri $uri/ /index.php?$query_string;
             }
+
+            location ~ \.php$ {
+              try_files $uri =404;
+              fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
+              fastcgi_index index.php;
+              fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+              include fastcgi_params;
+            }
+
         }" > /etc/nginx/conf.d/$subdomain.$domainname.conf
     fi
     if [ "$nodeapp" = "y" ]; then
@@ -118,7 +122,7 @@ if [ ! -f /etc/nginx/conf.d/$subdomain.$domainname ]; then
 
               server {
                   listen       80;
-                  server_name  domain.com www.domain.com;
+                  server_name  progressnet.dev www.progressnet.dev;
                   return 404; # managed by Certbot
 
 
@@ -136,6 +140,3 @@ sudo certbot --nginx -d $subdomain.$domainname
 
 #exit
 exit
-
-
-
